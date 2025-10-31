@@ -1,0 +1,134 @@
+import java.util.*;
+
+// Model class for an item
+class Item {
+    private static int nextId = 1;
+    private int id;
+    private String name;
+    private String description;
+    private String category;
+    private String status; // "lost", "found", "returned"
+    private String location;
+    private Date dateReported;
+
+    public Item(String name, String description, String category, String status, String location) {
+        this.id = nextId++;
+        this.name = name;
+        this.description = description;
+        this.category = category;
+        this.status = status;
+        this.location = location;
+        this.dateReported = new Date();
+    }
+
+    public int getId() { return id; }
+    public String getName() { return name; }
+    public String getStatus() { return status; }
+    public void setStatus(String status) { this.status = status; }
+
+    @Override
+    public String toString() {
+        return String.format("ID: %d | Name: %s | Category: %s | Status: %s | Location: %s | Date: %s",
+                id, name, category, status, location, dateReported.toString());
+    }
+}
+
+// Main system
+public class LostFoundSystem {
+    private static Scanner scanner = new Scanner(System.in);
+    private static List<Item> items = new ArrayList<>();
+
+    public static void main(String[] args) {
+        int choice;
+        do {
+            System.out.println("\n=== LOST AND FOUND ITEM MANAGEMENT SYSTEM ===");
+            System.out.println("1. Report Lost Item");
+            System.out.println("2. Report Found Item");
+            System.out.println("3. View All Items");
+            System.out.println("4. Search Item by Name");
+            System.out.println("5. Mark Item as Returned");
+            System.out.println("0. Exit");
+            System.out.print("Enter your choice: ");
+            choice = getIntInput();
+
+            switch (choice) {
+                case 1 -> reportItem("lost");
+                case 2 -> reportItem("found");
+                case 3 -> viewAllItems();
+                case 4 -> searchItem();
+                case 5 -> markReturned();
+                case 0 -> System.out.println("Exiting... Thank you!");
+                default -> System.out.println("Invalid choice! Try again.");
+            }
+        } while (choice != 0);
+    }
+
+    // --- FUNCTIONS ---
+
+    private static void reportItem(String status) {
+        System.out.println("\n--- REPORT " + status.toUpperCase() + " ITEM ---");
+        System.out.print("Item Name: ");
+        String name = scanner.nextLine();
+        System.out.print("Description: ");
+        String desc = scanner.nextLine();
+        System.out.print("Category: ");
+        String cat = scanner.nextLine();
+        System.out.print("Location: ");
+        String loc = scanner.nextLine();
+
+        Item item = new Item(name, desc, cat, status, loc);
+        items.add(item);
+        System.out.println("Item reported successfully!");
+    }
+
+    private static void viewAllItems() {
+        System.out.println("\n--- ALL REPORTED ITEMS ---");
+        if (items.isEmpty()) {
+            System.out.println("No items reported yet.");
+        } else {
+            for (Item i : items) {
+                System.out.println(i);
+            }
+        }
+    }
+
+    private static void searchItem() {
+        System.out.print("\nEnter item name to search: ");
+        String name = scanner.nextLine().toLowerCase();
+        boolean found = false;
+        for (Item i : items) {
+            if (i.getName().toLowerCase().contains(name)) {
+                System.out.println(i);
+                found = true;
+            }
+        }
+        if (!found) {
+            System.out.println("No item found with that name.");
+        }
+    }
+
+    private static void markReturned() {
+        System.out.print("\nEnter item ID to mark as returned: ");
+        int id = getIntInput();
+        for (Item i : items) {
+            if (i.getId() == id) {
+                i.setStatus("returned");
+                System.out.println("Item marked as returned!");
+                return;
+            }
+        }
+        System.out.println("Item ID not found.");
+    }
+
+    // --- Helper ---
+    private static int getIntInput() {
+        while (true) {
+            try {
+                String input = scanner.nextLine();
+                return Integer.parseInt(input);
+            } catch (NumberFormatException e) {
+                System.out.print("Please enter a valid number: ");
+            }
+        }
+    }
+}
